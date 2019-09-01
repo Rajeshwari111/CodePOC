@@ -67,4 +67,14 @@ public class ProductService {
 			throw new ServicesException(exp.getMessage());
 		}
 	}
+	
+	public void add(ProductBean product) throws ServicesException {
+
+		try {
+			dao.add(product);
+		} catch (DataSourceException exp) {
+			exp.printStackTrace();
+			throw new ServicesException(exp.getMessage());
+		}
+	}
 }

@@ -13,7 +13,7 @@ import com.google.dao.ProductBean;
 import com.google.service.ProductService;
 import com.google.service.ServicesException;
 
-@WebServlet(urlPatterns  = {"/search", "/delete","/editPage","/update"})
+@WebServlet(urlPatterns = { "/search", "/delete", "/editPage", "/update", "/add", "/addPage" })
 
 public class FrontController extends HttpServlet {
 	ProductService productService = new ProductService();
@@ -24,31 +24,29 @@ public class FrontController extends HttpServlet {
 		response.setContentType("text/html");
 
 		String reqPath = request.getServletPath();
-		
-		if(reqPath.endsWith("search"))
-		{
-		String productName = request.getParameter("productName");
-		
-		if (productName == null || productName.trim().length() == 0) {
-			request.setAttribute("productNameReq", " please specify product name");
-			request.getRequestDispatcher("/search.jsp").forward(request, response);
 
-		} else {
-			try {
-				List<ProductBean> productList = productService.search(productName.trim());
-				if (productList == null || productList.size() == 0) {
-					request.setAttribute("invalidName", " Product Details not found with the given name");
-					request.getRequestDispatcher("/search.jsp").forward(request, response);
-				} else {
-					request.setAttribute("productList", productList);
-					request.getRequestDispatcher("/success.jsp").forward(request, response);
+		if (reqPath.endsWith("search")) {
+			String productName = request.getParameter("productName");
+
+			if (productName == null || productName.trim().length() == 0) {
+				request.setAttribute("productNameReq", " please specify product name");
+				request.getRequestDispatcher("/search.jsp").forward(request, response);
+
+			} else {
+				try {
+					List<ProductBean> productList = productService.search(productName.trim());
+					if (productList == null || productList.size() == 0) {
+						request.setAttribute("invalidName", " Product Details not found with the given name");
+						request.getRequestDispatcher("/search.jsp").forward(request, response);
+					} else {
+						request.setAttribute("productList", productList);
+						request.getRequestDispatcher("/success.jsp").forward(request, response);
+					}
+				} catch (ServicesException e) {
+					response.sendRedirect("./error.jsp");
 				}
-			} catch (ServicesException e) {
-				response.sendRedirect("./error.jsp");
 			}
-		}
-		}else if(reqPath.endsWith("delete"))
-		{
+		} else if (reqPath.endsWith("delete")) {
 			Integer productId = Integer.valueOf(request.getParameter("productId"));
 			try {
 				productService.deleteProductById(productId);
@@ -60,38 +58,64 @@ public class FrontController extends HttpServlet {
 					request.setAttribute("productList", productList);
 					request.getRequestDispatcher("/success.jsp").forward(request, response);
 				}
-				
+
 			} catch (ServicesException e) {
 				response.sendRedirect("./error.jsp");
 			}
-		}else if(reqPath.endsWith("editPage"))
-		{
+		} else if (reqPath.endsWith("editPage")) {
 			Integer productId = Integer.valueOf(request.getParameter("productId"));
 			try {
 				ProductBean product = productService.getProductById(productId);
-					request.setAttribute("product", product);
-					request.getRequestDispatcher("/edit.jsp").forward(request, response);
-				
+				request.setAttribute("product", product);
+				request.getRequestDispatcher("/edit.jsp").forward(request, response);
+
 			} catch (ServicesException e) {
 				response.sendRedirect("./error.jsp");
 			}
-		}else if(reqPath.endsWith("update"))
-		{
+		} else if (reqPath.endsWith("update")) {
 			Integer productId = Integer.valueOf(request.getParameter("productId"));
-			String productName =  request.getParameter("productName");
+			String productName = request.getParameter("productName");
 			Float productPrice = Float.valueOf(request.getParameter("productPrice"));
-			
+
 			ProductBean product = new ProductBean(productId, productName, productPrice);
-				
+
 			try {
 				productService.update(product);
 				List<ProductBean> productList = productService.getAll();
-					request.setAttribute("productList", productList);
-					request.getRequestDispatcher("/success.jsp").forward(request, response);
-				
+				request.setAttribute("productList", productList);
+				request.getRequestDispatcher("/success.jsp").forward(request, response);
+
 			} catch (ServicesException e) {
 				response.sendRedirect("./error.jsp");
 			}
+		} else if (reqPath.endsWith("add")) {
+			Integer productId = Integer.valueOf(request.getParameter("productId"));
+			String productName = request.getParameter("productName");
+			Float productPrice = Float.valueOf(request.getParameter("productPrice"));
+
+			ProductBean product = new ProductBean(productId, productName, productPrice);
+
+			try {
+				ProductBean p = productService.getProductById(productId);
+					if(p == null)
+					{
+				productService.add(product);
+				List<ProductBean> productList = productService.getAll();
+				request.setAttribute("productList", productList);
+				request.getRequestDispatcher("/success.jsp").forward(request, response);
+					}else
+					{
+						request.setAttribute("idExists", "ProductID already exists");
+						request.setAttribute("product", product);
+						request.getRequestDispatcher("/add.jsp").forward(request, response);
+					}
+
+			} catch (ServicesException e) {
+				response.sendRedirect("./error.jsp");
+			}
+		} else if (reqPath.endsWith("addPage")) {
+			request.getRequestDispatcher("/add.jsp").forward(request, response);
+
 		}
 
 	}

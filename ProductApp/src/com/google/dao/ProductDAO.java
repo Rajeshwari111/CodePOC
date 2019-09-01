@@ -264,5 +264,45 @@ public class ProductDAO {
 		}
 
 	}
+	
+	public void add(ProductBean product) throws DataSourceException {
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = dataSource.getConnection();
+			ps = con.prepareStatement("Insert Into Product(PID,PNAME,PRICE) Values(?,?,?)");
+			ps.setInt(1, product.getProductId());
+			ps.setString(2, product.getProductName());
+			ps.setFloat(3, product.getProductPrice());
+		
+			ps.executeUpdate();
+		} catch (SQLException exp) {
+			exp.printStackTrace();
+			throw new DataSourceException(exp.getMessage());
+		} catch (Exception exp) {
+			exp.printStackTrace();
+			throw new DataSourceException(exp.getMessage());
+		} finally {
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException exp) {
+					exp.printStackTrace();
+					throw new DataSourceException(exp.getMessage());
+				}
+			}
+
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException exp) {
+					exp.printStackTrace();
+					throw new DataSourceException(exp.getMessage());
+				}
+			}
+		}
+
+	}
 
 }
