@@ -1,0 +1,10 @@
+Create Table Product(PID number(10) Primary Key, Pname varchar2(20),Price number(10,2) );
+
+Insert into Product(PID,PNAME,PRICE) Values(111,'Lenovok5',15000);
+Insert into Product(PID,PNAME,PRICE) Values(222,'LenovoG570',25000);
+Insert into Product(PID,PNAME,PRICE) Values(333,'LenovoNote1',13000);
+Insert into Product(PID,PNAME,PRICE) Values(444,'Apple5s',25000);
+Insert into Product(PID,PNAME,PRICE) Values(555,'Apple6',45000);
+
+commit;
+
